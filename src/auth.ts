@@ -1,7 +1,7 @@
 import { Lucia, Session, User } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { cookies } from "next/headers"; // Next.js 中用來存取 cookie 的 API
-import { cache } from "react"; // 用於避免重複執行非同步函式（例如 server component 中）(優化手段)
+import { cache } from "react"; // 用於避免在同一 render 中，重複執行[相同參數]的非同步函式（僅在 server component 中作用）(優化手段)
 import prisma from "@/lib/prisma";
 
 // 建立 Lucia 所需的 Adapter，需指定 session 與 user 的 table
@@ -61,15 +61,15 @@ export const validateRequest = cache(
       }
 
       // session 已過期或無效
-      if (!result.session) {
-        // 建立一個過期的、用於清除使用者瀏覽器中 session cookie 的 cookie
-        const sessionCookie = lucia.createBlankSessionCookie();
-        cookieStore.set(
-          sessionCookie.name,
-          sessionCookie.value,
-          sessionCookie.attributes,
-        );
-      }
+      // if (!result.session) {
+      // 建立一個過期的、用於清除使用者瀏覽器中 session cookie 的 cookie
+      // const sessionCookie = lucia.createBlankSessionCookie();
+      // cookieStore.set(
+      //   sessionCookie.name,
+      //   sessionCookie.value,
+      //   sessionCookie.attributes,
+      // );
+      // }
     } catch (e: unknown) {
       console.error("error", e);
     }
