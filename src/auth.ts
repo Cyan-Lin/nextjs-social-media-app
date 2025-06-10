@@ -32,6 +32,26 @@ export const validateRequest = cache(
   async (): Promise<
     { user: User; session: Session } | { user: null; session: null }
   > => {
+    // 檢查是否啟用 mock 模式
+    console.log("process.env.ENABLE_AUTH_MOCK", process.env.ENABLE_AUTH_MOCK);
+    if (process.env.ENABLE_AUTH_MOCK === "true") {
+      return {
+        user: {
+          id: "mock-user-id",
+          username: "mock-user",
+          displayName: "Mock User",
+          avatarUrl: null,
+          googleId: null,
+        },
+        session: {
+          id: "mock-session-id",
+          userId: "mock-user-id",
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24小時後過期
+          fresh: true,
+        },
+      };
+    }
+
     const cookieStore = await cookies();
 
     // 從 cookie 中取得 session id（Lucia 會預設儲存在 cookie 中）
